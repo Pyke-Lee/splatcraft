@@ -1,0 +1,28 @@
+{
+	"schemaVersion": 1,
+	"id": "splatcraft",
+	"version": "${version}",
+	"name": "SplatCraft",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/splatcraft/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [ "kr.pyke.splatcraft.SplatCraft" ]
+	},
+	"mixins": [
+		"splatcraft.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.1",
+		"minecraft": "~26.1.2",
+		"java": ">=25",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*"
+	}
+}
