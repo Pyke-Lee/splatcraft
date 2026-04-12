@@ -3,17 +3,15 @@
 	"id": "splatcraft",
 	"version": "${version}",
 	"name": "SplatCraft",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
-	],
-	"contact": {
-	},
-	"license": "CC0-1.0",
+	"description": "",
+	"authors": [ "Pyke__Lee" ],
+	"contact": { },
+	"license": "LGPL 3.0",
 	"icon": "assets/splatcraft/icon.png",
 	"environment": "*",
 	"entrypoints": {
-		"main": [ "kr.pyke.splatcraft.SplatCraft" ]
+		"main": [ "kr.pyke.splatcraft.SplatCraft" ],
+		"client": [ "kr.pyke.splatcraft.client.SplatCraftClient" ]
 	},
 	"mixins": [
 		"splatcraft.mixins.json"
