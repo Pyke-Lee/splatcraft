@@ -1,4 +1,8 @@
 {
     "itemGroup.splatcraft.creative_tab": "스플레툰",
-    "item.splatcraft.marker.field": "구역 지정 도구"
+    "item.splatcraft.marker.field": "구역 지정 도구",
+    "item.splatcraft.songkran.water_gun_1": "물총 (타입 1)",
+    "item.splatcraft.songkran.water_gun_2": "물총 (타입 2)",
+    "item.splatcraft.songkran.water_gun_3": "물총 (타입 3)",
+    "entity.splatcraft.ink_projectile": "잉크 발사체"
 }

@@ -1,0 +1,8 @@
+{
+    "projectile_speed": 1.5,
+    "projectile_spread": 1,
+    "splash_radius": 2,
+    "damage": 4,
+    "max_projectile_life": 40,
+    "cooldown_ticks": 4
+}

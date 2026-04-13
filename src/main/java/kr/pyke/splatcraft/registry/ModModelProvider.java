@@ -21,5 +21,8 @@ public class ModModelProvider extends FabricModelProvider {
     @Override
     public void generateItemModels(@NonNull ItemModelGenerators itemModelGenerators) {
         itemModelGenerators.generateFlatItem(ModItems.FIELD_MARKER, ModelTemplates.FLAT_ITEM);
+        itemModelGenerators.declareCustomModelItem(ModItems.WATER_GUN_1);
+        itemModelGenerators.declareCustomModelItem(ModItems.WATER_GUN_2);
+        itemModelGenerators.declareCustomModelItem(ModItems.WATER_GUN_3);
     }
 }

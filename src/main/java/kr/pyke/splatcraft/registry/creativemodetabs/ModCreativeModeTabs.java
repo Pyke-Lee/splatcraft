@@ -21,6 +21,9 @@ public class ModCreativeModeTabs {
         .title(Component.translatable("itemGroup.splatcraft.creative_tab"))
         .displayItems((params, output) -> {
             output.accept(ModItems.FIELD_MARKER);
+            output.accept(ModItems.WATER_GUN_1);
+            output.accept(ModItems.WATER_GUN_2);
+            output.accept(ModItems.WATER_GUN_3);
         })
         .build();
 
