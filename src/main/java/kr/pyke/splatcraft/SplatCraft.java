@@ -1,8 +1,13 @@
 package kr.pyke.splatcraft;
 
+import kr.pyke.splatcraft.command.SplatCraftCommand;
+import kr.pyke.splatcraft.handle.ServerLifeCycleEventsHandler;
+import kr.pyke.splatcraft.handle.ServerPlayConnectionEventsHandler;
+import kr.pyke.splatcraft.handle.ServerTickEventsHandler;
 import kr.pyke.splatcraft.network.SCPacket;
 import kr.pyke.splatcraft.registry.ModRegistry;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 import org.apache.logging.log4j.LogManager;
@@ -22,5 +27,11 @@ public class SplatCraft implements ModInitializer {
         SCPacket.registerServer();
 
         ModRegistry.register();
+
+        ServerLifeCycleEventsHandler.register();
+        ServerTickEventsHandler.register();
+        ServerPlayConnectionEventsHandler.register();
+
+        CommandRegistrationCallback.EVENT.register(SplatCraftCommand::register);
     }
 }
