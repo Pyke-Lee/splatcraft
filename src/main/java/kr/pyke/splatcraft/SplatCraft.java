@@ -1,9 +1,11 @@
 package kr.pyke.splatcraft;
 
 import kr.pyke.splatcraft.command.SplatCraftCommand;
+import kr.pyke.splatcraft.handle.InkMovementHandler;
 import kr.pyke.splatcraft.handle.ServerLifeCycleEventsHandler;
 import kr.pyke.splatcraft.handle.ServerPlayConnectionEventsHandler;
 import kr.pyke.splatcraft.handle.ServerTickEventsHandler;
+import kr.pyke.splatcraft.manager.TeamColorManager;
 import kr.pyke.splatcraft.manager.WeaponDataManager;
 import kr.pyke.splatcraft.network.SCPacket;
 import kr.pyke.splatcraft.registry.ModRegistry;
@@ -33,10 +35,13 @@ public class SplatCraft implements ModInitializer {
         ModRegistry.register();
 
         ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(Identifier.fromNamespaceAndPath(MOD_ID, "weapon_data"), new WeaponDataManager());
+        ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(Identifier.fromNamespaceAndPath(MOD_ID, "team_color_data"), new TeamColorManager());
 
         ServerLifeCycleEventsHandler.register();
         ServerTickEventsHandler.register();
         ServerPlayConnectionEventsHandler.register();
+
+        InkMovementHandler.register();
 
         CommandRegistrationCallback.EVENT.register(SplatCraftCommand::register);
     }

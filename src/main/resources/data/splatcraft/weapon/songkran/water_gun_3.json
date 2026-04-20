@@ -4,5 +4,6 @@
     "splash_radius": 1,
     "damage": 5.0,
     "max_projectile_life": 30,
-    "cooldown_ticks": 6
+    "cooldown_ticks": 6,
+    "gravity": 0.06
 }

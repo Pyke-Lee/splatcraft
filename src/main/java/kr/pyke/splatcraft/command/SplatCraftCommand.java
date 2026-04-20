@@ -1,17 +1,21 @@
 package kr.pyke.splatcraft.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import kr.pyke.splatcraft.data.Field;
 import kr.pyke.splatcraft.manager.FieldManager;
 import kr.pyke.splatcraft.manager.InkStorage;
+import kr.pyke.splatcraft.manager.PlayerTeamManager;
 import kr.pyke.splatcraft.network.SCPacket;
 import kr.pyke.splatcraft.registry.item.fieldmarker.FieldMarkerItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -28,7 +32,7 @@ public class SplatCraftCommand {
         dispatcher.register(
             Commands.literal("splatcraft")
                 .requires(source -> source.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.byId(2))))
-                .then(Commands.literal("field.json")
+                .then(Commands.literal("field")
                     .then(Commands.literal("create")
                         .then(Commands.argument("id", StringArgumentType.word())
                             .executes(SplatCraftCommand::createField)
@@ -53,6 +57,34 @@ public class SplatCraftCommand {
                         )
                     )
                 )
+                .then(Commands.literal("team")
+                    .then(Commands.literal("join")
+                        .then(Commands.argument("teamID", IntegerArgumentType.integer(1, 15))
+                            .executes(SplatCraftCommand::teamJoinSelf)
+                            .then(Commands.argument("target", EntityArgument.players())
+                                .executes(SplatCraftCommand::teamJoinTarget)
+                            )
+                        )
+                    )
+                    .then(Commands.literal("leave")
+                        .executes(SplatCraftCommand::teamLeaveSelf)
+                        .then(Commands.argument("target", EntityArgument.players())
+                            .executes(SplatCraftCommand::teamLeaveTarget)
+                        )
+                    )
+                    .then(Commands.literal("name")
+                        .then(Commands.argument("teamID", IntegerArgumentType.integer(1, 15))
+                            .then(Commands.argument("name", StringArgumentType.greedyString())
+                                .executes(SplatCraftCommand::teamSetName)
+                            )
+                        )
+                    )
+                    .then(Commands.literal("clear")
+                        .then(Commands.argument("teamID", IntegerArgumentType.integer(1, 15))
+                            .executes(SplatCraftCommand::teamClear)
+                        )
+                    )
+                )
                 .then(Commands.literal("ink")
                     .then(Commands.literal("clear")
                         .executes(SplatCraftCommand::clearAllInk)
@@ -62,6 +94,83 @@ public class SplatCraftCommand {
                     )
                 )
         );
+    }
+
+    private static int teamJoinSelf(CommandContext<CommandSourceStack> context) {
+        ServerPlayer player = context.getSource().getPlayer();
+        if (player == null) {
+            context.getSource().sendFailure(Component.literal("플레이어만 사용할 수 있는 명령어입니다."));
+            return 0;
+        }
+
+        byte teamID = (byte) IntegerArgumentType.getInteger(context, "teamID");
+        PlayerTeamManager.setTeamID(player.getUUID(), teamID);
+        PlayerTeamManager.markSavedDataDirty(context.getSource().getServer());
+        String teamName = PlayerTeamManager.getTeamName(teamID);
+
+        context.getSource().sendSuccess(() -> Component.literal(teamName + "에 참가했습니다.").withStyle(ChatFormatting.GREEN), true);
+        return 1;
+    }
+
+    private static int teamJoinTarget(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        byte teamID = (byte) IntegerArgumentType.getInteger(context, "teamID");
+        Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, "target");
+        String teamName = PlayerTeamManager.getTeamName(teamID);
+
+        for (ServerPlayer target : targets) {
+            PlayerTeamManager.setTeamID(target.getUUID(), teamID);
+        }
+        PlayerTeamManager.markSavedDataDirty(context.getSource().getServer());
+
+        context.getSource().sendSuccess(() -> Component.literal(targets.size() + "명을 " + teamName + "에 배정했습니다.").withStyle(ChatFormatting.GREEN), true);
+        return targets.size();
+    }
+
+    private static int teamLeaveSelf(CommandContext<CommandSourceStack> context) {
+        ServerPlayer player = context.getSource().getPlayer();
+        if (player == null) {
+            context.getSource().sendFailure(Component.literal("플레이어만 사용할 수 있는 명령어입니다."));
+            return 0;
+        }
+
+        PlayerTeamManager.removePlayer(player.getUUID());
+        PlayerTeamManager.markSavedDataDirty(context.getSource().getServer());
+
+        context.getSource().sendSuccess(() -> Component.literal("팀에서 나왔습니다.").withStyle(ChatFormatting.YELLOW), true);
+        return 1;
+    }
+
+    private static int teamLeaveTarget(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        Collection<ServerPlayer> targets = EntityArgument.getPlayers(context, "target");
+
+        for (ServerPlayer target : targets) {
+            PlayerTeamManager.removePlayer(target.getUUID());
+        }
+        PlayerTeamManager.markSavedDataDirty(context.getSource().getServer());
+
+        context.getSource().sendSuccess(() -> Component.literal(targets.size() + "명을 팀에서 제거했습니다.").withStyle(ChatFormatting.YELLOW), true);
+        return targets.size();
+    }
+
+    private static int teamSetName(CommandContext<CommandSourceStack> context) {
+        byte teamID = (byte) IntegerArgumentType.getInteger(context, "teamID");
+        String name = StringArgumentType.getString(context, "name");
+
+        PlayerTeamManager.setTeamName(teamID, name);
+        PlayerTeamManager.markSavedDataDirty(context.getSource().getServer());
+
+        context.getSource().sendSuccess(() -> Component.literal("팀 " + teamID + "의 이름을 ").append(Component.literal(name).withStyle(ChatFormatting.YELLOW)).append("(으)로 설정했습니다."), true);
+        return 1;
+    }
+
+    private static int teamClear(CommandContext<CommandSourceStack> context) {
+        byte teamID = (byte) IntegerArgumentType.getInteger(context, "teamID");
+        String teamName = PlayerTeamManager.getTeamName(teamID);
+        int removed = PlayerTeamManager.clearTeam(teamID);
+        PlayerTeamManager.markSavedDataDirty(context.getSource().getServer());
+
+        context.getSource().sendSuccess(() -> Component.literal(teamName + "에서 " + removed + "명을 제거했습니다.").withStyle(ChatFormatting.YELLOW), true);
+        return removed;
     }
 
     private static int createField(CommandContext<CommandSourceStack> context) {
@@ -139,7 +248,6 @@ public class SplatCraftCommand {
 
             source.sendSuccess(() -> Component.literal(" " + status + " ").withStyle(statusColor).append(Component.literal(field.getID()).withStyle(ChatFormatting.WHITE)).append(Component.literal(" (").append(formatPos(field.getMin())).append(" ~ ").append(formatPos(field.getMax())).append(")").withStyle(ChatFormatting.GRAY)), false);
         }
-
         return fields.size();
     }
 

@@ -1,4 +1,4 @@
-package kr.pyke.splatcraft.handle;
+package kr.pyke.splatcraft.util;
 
 import kr.pyke.splatcraft.data.InkEntry;
 import kr.pyke.splatcraft.manager.FieldManager;
