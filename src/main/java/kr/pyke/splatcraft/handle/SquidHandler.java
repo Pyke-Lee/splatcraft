@@ -19,7 +19,7 @@ public class SquidHandler {
 
     public static void tickPlayer(ServerPlayer player) {
         ISquidComponent component = ModComponents.SQUID.get(player);
-        AttributeInstance speedAttribute = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        AttributeInstance speedAttribute = player.getAttribute(Attributes.SNEAKING_SPEED);
 
         byte playerTeamID = PlayerTeamManager.getTeamID(player);
         if (playerTeamID == 0) {
@@ -28,7 +28,7 @@ public class SquidHandler {
         }
 
         boolean onAllyInk = InkHelper.getInkTeamBelow(player.level(), player.blockPosition()) == playerTeamID;
-        boolean wantsSquid = player.isShiftKeyDown() && onAllyInk;
+        boolean wantsSquid = player.isCrouching() && onAllyInk;
 
         if (wantsSquid && !component.isSubmerged()) {
             enterSquid(player, component, speedAttribute);
