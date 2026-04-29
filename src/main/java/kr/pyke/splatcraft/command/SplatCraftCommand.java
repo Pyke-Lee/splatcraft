@@ -11,6 +11,7 @@ import kr.pyke.splatcraft.manager.InkStorage;
 import kr.pyke.splatcraft.manager.PlayerTeamManager;
 import kr.pyke.splatcraft.network.SCPacket;
 import kr.pyke.splatcraft.registry.item.fieldmarker.FieldMarkerItem;
+import kr.pyke.splatcraft.team.TeamSync;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -119,6 +120,7 @@ public class SplatCraftCommand {
 
         for (ServerPlayer target : targets) {
             PlayerTeamManager.setTeamID(target.getUUID(), teamID);
+            TeamSync.assignTeam(context.getSource().getServer(), target, teamID);
         }
         PlayerTeamManager.markSavedDataDirty(context.getSource().getServer());
 
@@ -135,6 +137,7 @@ public class SplatCraftCommand {
 
         PlayerTeamManager.removePlayer(player.getUUID());
         PlayerTeamManager.markSavedDataDirty(context.getSource().getServer());
+        TeamSync.removeTeam(player);
 
         context.getSource().sendSuccess(() -> Component.literal("팀에서 나왔습니다.").withStyle(ChatFormatting.YELLOW), true);
         return 1;
@@ -145,6 +148,7 @@ public class SplatCraftCommand {
 
         for (ServerPlayer target : targets) {
             PlayerTeamManager.removePlayer(target.getUUID());
+            TeamSync.removeTeam(target);
         }
         PlayerTeamManager.markSavedDataDirty(context.getSource().getServer());
 
@@ -166,6 +170,13 @@ public class SplatCraftCommand {
     private static int teamClear(CommandContext<CommandSourceStack> context) {
         byte teamID = (byte) IntegerArgumentType.getInteger(context, "teamID");
         String teamName = PlayerTeamManager.getTeamName(teamID);
+
+        for (ServerPlayer player : context.getSource().getServer().getPlayerList().getPlayers()) {
+            if (PlayerTeamManager.getTeamID(player) == teamID) {
+                TeamSync.removeTeam(player);
+            }
+        }
+
         int removed = PlayerTeamManager.clearTeam(teamID);
         PlayerTeamManager.markSavedDataDirty(context.getSource().getServer());
 

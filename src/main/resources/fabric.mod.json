@@ -11,11 +11,15 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [ "kr.pyke.splatcraft.SplatCraft" ],
-		"client": [ "kr.pyke.splatcraft.client.SplatCraftClient" ]
+		"client": [ "kr.pyke.splatcraft.client.SplatCraftClient" ],
+		"cardinal-components": [ "kr.pyke.splatcraft.registry.component.ModComponents" ]
 	},
 	"mixins": [
 		"splatcraft.mixins.json"
 	],
+	"custom": {
+		"cardinal-components": [ "splatcraft:squid" ]
+	},
 	"depends": {
 		"fabricloader": ">=0.19.1",
 		"minecraft": "~26.1.2",

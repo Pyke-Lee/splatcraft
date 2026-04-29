@@ -10,11 +10,10 @@ version = providers.gradleProperty("mod_version").get()
 group = providers.gradleProperty("maven_group").get()
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
+	maven {
+		name = "Ladysnake Mods"
+		url = uri("https://maven.ladysnake.org/releases")
+	}
 }
 
 dependencies {
@@ -26,6 +25,15 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
 	implementation("net.fabricmc:fabric-language-kotlin:${providers.gradleProperty("fabric_kotlin_version").get()}")
+
+	// Cardinal Components API
+	val ccaVersion = property("cca_version") as String
+
+	implementation("org.ladysnake.cardinal-components-api:cardinal-components-base:$ccaVersion")
+	implementation("org.ladysnake.cardinal-components-api:cardinal-components-entity:$ccaVersion")
+
+	include("org.ladysnake.cardinal-components-api:cardinal-components-base:$ccaVersion")
+	include("org.ladysnake.cardinal-components-api:cardinal-components-entity:$ccaVersion")
 }
 
 tasks.processResources {
